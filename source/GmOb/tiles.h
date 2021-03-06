@@ -21,7 +21,7 @@ public:
     void FreeMemory();
     void addAll(const tiles& new_tiles);
     int getLiveNeighborsCount(int x, int y) const;
-    void DrawLiveTiles(GLFWwindow* window, unsigned int, unsigned int, unsigned int);
+    void DrawLiveTiles(GLFWwindow* window, unsigned int, unsigned int);
 
     tiles& operator= (const tiles& new_tiles);
 };

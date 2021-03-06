@@ -56,15 +56,16 @@ int tiles::GetCount() const
     return count;
 }
 
-void tiles::DrawLiveTiles(GLFWwindow* window, unsigned int VBO, unsigned int EBO, unsigned int VAO)
+void tiles::DrawLiveTiles(GLFWwindow* window, unsigned int VBO, unsigned int EBO)
 {
     float vertices[12]{ 0.f };
     unsigned int indices[] = {
         0, 1, 3,
         1, 2, 3
     };
-
-    glBindVertexArray(VAO);
+    unsigned int VAO1;
+    glGenVertexArrays(1, &VAO1);
+    glBindVertexArray(VAO1);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
@@ -74,7 +75,7 @@ void tiles::DrawLiveTiles(GLFWwindow* window, unsigned int VBO, unsigned int EBO
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    glBindVertexArray(VAO);
+    glBindVertexArray(VAO1);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
     for (int i = 0; i < count; ++i)
@@ -100,6 +101,7 @@ void tiles::DrawLiveTiles(GLFWwindow* window, unsigned int VBO, unsigned int EBO
     }
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+    glDeleteVertexArrays(1, &VAO1);
 }
 
 tiles& tiles:: operator= (const tiles& new_tiles)

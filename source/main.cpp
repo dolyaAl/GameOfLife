@@ -142,12 +142,12 @@ void processInput(GLFWwindow* window, tiles* gm_t)
     }
 }
 
-void GameRenderer(GLFWwindow* window, unsigned int VBO, unsigned int EBO, unsigned int VAO)
+void GameRenderer(GLFWwindow* window, unsigned int VBO, unsigned int EBO)
 {
     DrawVertical(window, VBO);
     DrawHorizontal(window, VBO);
 
-    GameTiles.DrawLiveTiles(window, VBO, EBO, VAO);
+    GameTiles.DrawLiveTiles(window, VBO, EBO);
     if (GameStarted)
     {
         if (glfwGetTime() >= 0.1f)
@@ -253,10 +253,9 @@ int main(int argc, char* argv[])
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
-    unsigned int VBO, VAO, VAO1, EBO;
+    unsigned int VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
-    glGenVertexArrays(1, &VAO1);
     glGenBuffers(1, &EBO);
 
     glBindVertexArray(VAO);
@@ -279,7 +278,7 @@ int main(int argc, char* argv[])
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO); 
 
-        GameRenderer(window, VBO, EBO, VAO1);
+        GameRenderer(window, VBO, EBO);
        
         glfwSwapBuffers(window);
         glfwPollEvents();
