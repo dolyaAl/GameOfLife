@@ -20,28 +20,6 @@ bool start = false;
 //
 
 tiles GameTiles(gm_tiles_count);
-tiles NewGenGameTiles(gm_tiles_count);
-tiles n_gen(gm_tiles_count);
-
-tiles newGen(const tiles n_gm_t)
-{
-    n_gen.FreeMemory();
-    for (int i = 0; i < n_gm_t.GetCount(); ++i)
-    {
-        for (int j = 0; j < n_gm_t.GetCount(); ++j)
-        {
-            if (n_gm_t.data[i][j] == 1 && n_gm_t.getLiveNeighborsCount(i, j) >= 2 && n_gm_t.getLiveNeighborsCount(i, j) <= 3)
-            {
-                n_gen.SetLive(1, i, j);
-            }
-            else if (n_gm_t.getLiveNeighborsCount(i, j) == 3)
-            {
-                n_gen.SetLive(1, i, j);
-            }
-        }
-    }
-    return n_gen;
-}
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -58,7 +36,7 @@ void DrawVertical(GLFWwindow* window, unsigned int VBO)
     {
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-        glDrawArrays(GL_LINE_STRIP, 0, 2);
+        glDrawArrays(GL_LINE_LOOP, 0, 2);
         vertices[0] += (float)2 / gm_tiles_count;
         vertices[2] += (float)2 / gm_tiles_count;
     }
@@ -98,10 +76,6 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
     }
     gm_tiles_step_x = static_cast<float>(scr_WIDTH) / static_cast<float>(gm_tiles_count);
     gm_tiles_step_y = static_cast<float>(scr_HEIGHT) / static_cast<float>(gm_tiles_count);
-    tiles n_tiles(gm_tiles_count);
-    GameTiles = n_tiles;
-    NewGenGameTiles = n_tiles;
-    n_gen = n_tiles;
 }
 
 void processInput(GLFWwindow* window, tiles* gm_t)
@@ -152,8 +126,7 @@ void GameRenderer(GLFWwindow* window, unsigned int VBO, unsigned int EBO)
     {
         if (glfwGetTime() >= 0.1f)
         {
-            NewGenGameTiles = newGen(GameTiles);
-            GameTiles = NewGenGameTiles;
+            GameTiles.newGen();
             glfwSetTime(0);
         }
     }
@@ -179,43 +152,8 @@ const char* fragmentShaderSource = "#version 330 core\n"
 "}\n\0";
 //
 
-int main(int argc, char* argv[])
+unsigned int CreateShaderProgram()
 {
-    GLFWwindow* window;
-
-    /* Initialize the library */
-    if (!glfwInit())
-    {
-        return -1;
-    }
-
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(scr_WIDTH, scr_HEIGHT, "GameOfLife", nullptr, nullptr);
-    if (!window)
-    {
-        std::cout << "Can't create Window" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
-
-    /* Make the window's context current */
-    glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
-	if(!gladLoadGL())
-	{
-		std::cout << "Can't load GLAD!" << std::endl;
-		return -1;
-	}
-	
-	std::cout << "OpenGL " << GLVersion.major << "." << GLVersion.minor << std::endl;
-	
-    glClearColor(0.7f, 0.7f, 0.7f, 1);
-	
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
     glCompileShader(vertexShader);
@@ -252,8 +190,54 @@ int main(int argc, char* argv[])
     }
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
+    return shaderProgram;
 
-    unsigned int VBO, VAO, EBO;
+}
+
+bool glInit()
+{
+    if (!glfwInit())
+    {
+        return false;
+    }
+
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+}
+
+int main(int argc, char* argv[])
+{
+    GLFWwindow* window;
+
+    glInit();
+
+    window = glfwCreateWindow(scr_WIDTH, scr_HEIGHT, "GameOfLife", nullptr, nullptr);
+    if (!window)
+    {
+        std::cout << "Can't create Window" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
+
+    glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+	if(!gladLoadGL())
+	{
+		std::cout << "Can't load GLAD!" << std::endl;
+		return -1;
+	}
+	
+	std::cout << "OpenGL " << GLVersion.major << "." << GLVersion.minor << std::endl;
+	
+    glClearColor(0.7f, 0.7f, 0.7f, 1);
+	
+    unsigned int shaderProgram = CreateShaderProgram();
+
+    unsigned int VBO = 0;
+    unsigned int VAO = 0;
+    unsigned int EBO = 0;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
