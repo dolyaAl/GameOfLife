@@ -36,7 +36,7 @@ void DrawVertical(GLFWwindow* window, unsigned int VBO)
     {
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-        glDrawArrays(GL_LINE_LOOP, 0, 2);
+        glDrawArrays(GL_LINE, 0, 2);
         vertices[0] += (float)2 / gm_tiles_count;
         vertices[2] += (float)2 / gm_tiles_count;
     }
@@ -54,7 +54,7 @@ void DrawHorizontal(GLFWwindow* window, unsigned int VBO)
     {
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-        glDrawArrays(GL_LINE_STRIP, 0, 2);
+        glDrawArrays(GL_LINE, 0, 2);
         vertices[1] += (float)2 / gm_tiles_count;
         vertices[3] += (float)2 / gm_tiles_count;
     }
