@@ -19,6 +19,7 @@ public:
     unsigned int** currentData();
     unsigned int** bufferData();
     void SetLive(unsigned int live, unsigned int x, unsigned int y);
+    void resize(int gm_tiles_count);
     int GetLive(unsigned int x, unsigned int y);
     int GetLiveCount();
     int GetCount() const;
@@ -26,5 +27,6 @@ public:
     int getLiveNeighborsCount(int x, int y);
     void DrawLiveTiles(GLFWwindow* window, unsigned int, unsigned int);
     void newGen();
-
+    bool indexValid(int x, int y);
+    tiles* operator= (tiles& n_tiles);
 };

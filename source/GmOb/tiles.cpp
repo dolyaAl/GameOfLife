@@ -81,6 +81,86 @@ void tiles::SetLive(unsigned int live, unsigned int x, unsigned int y)
     live == 1 ? ++live_count : --live_count;
 }
 
+void tiles::resize(int gm_tiles_count)
+{
+    int n_count = 0;
+    gm_tiles_count <= count ? n_count = gm_tiles_count : n_count = count;
+    int** new_data = new int* [n_count];
+    for (int i = 0; i < n_count; ++i)
+    {
+        new_data[i] = new int[n_count] {0};
+    }
+    for (int i = 0; i < n_count; ++i)
+    {
+        for (int j = 0; j < n_count; ++j)
+        {
+            new_data[i][j] = data1[i][j];
+        }
+    }
+    for (int i = 0; i < count; ++i)
+    {
+        delete[] data1[i];
+    }
+    delete[] data1;
+    data1 = new unsigned int* [gm_tiles_count];
+    for (int i = 0; i < gm_tiles_count; ++i)
+    {
+        data1[i] = new unsigned int[gm_tiles_count] {0};
+    }
+    for (int i = 0; i < n_count; ++i)
+    {
+        for (int j = 0; j < n_count; ++j)
+        {
+            data1[i][j] = new_data[i][j];
+        }
+    }
+
+    for (int i = 0; i < n_count; ++i)
+    {
+        delete[] new_data[i];
+    }
+    delete[] new_data;
+    new_data = new int* [n_count];
+    for (int i = 0; i < n_count; ++i)
+    {
+        new_data[i] = new int[n_count] {0};
+    }
+
+
+    for (int i = 0; i < n_count; ++i)
+    {
+        for (int j = 0; j < n_count; ++j)
+        {
+            new_data[i][j] = data2[i][j];
+        }
+    }
+    for (int i = 0; i < count; ++i)
+    {
+        delete[] data2[i];
+    }
+    delete[] data2;
+    data2 = new unsigned int* [gm_tiles_count];
+    for (int i = 0; i < gm_tiles_count; ++i)
+    {
+        data2[i] = new unsigned int[gm_tiles_count] {0};
+    }
+    for (int i = 0; i < n_count; ++i)
+    {
+        for (int j = 0; j < n_count; ++j)
+        {
+            data2[i][j] = new_data[i][j];
+        }
+    }
+
+    for (int i = 0; i < n_count; ++i)
+    {
+        delete[] new_data[i];
+    }
+    delete[] new_data;
+
+    count = gm_tiles_count;
+}
+
 int tiles::GetLive(unsigned int x, unsigned int y)
 {
     return currentData()[x][y];
@@ -98,12 +178,26 @@ int tiles::GetCount() const
 
 void tiles::DrawLiveTiles(GLFWwindow* window, unsigned int VBO, unsigned int EBO)
 {
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+
     float vertices[12]{ 0.f };
+
     unsigned int indices[] = {
         0, 1, 3,
         1, 2, 3
     };
+    /*unsigned int texCoords[] = {
+        1.0f, 1.0f,
+        1.0f, 0.0f,
+        0.0f, 0.0f,
+        0.0f, 1.0f
+    };
   
+    glBindBuffer(GL_TEXTURE_2D_ARRAY, TBO);
+    glBufferData(GL_TEXTURE_2D_ARRAY, sizeof(texCoords), texCoords, GL_STATIC_DRAW);*/
+
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
@@ -130,7 +224,7 @@ void tiles::DrawLiveTiles(GLFWwindow* window, unsigned int VBO, unsigned int EBO
             }
         }
     }
-
+    
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
@@ -154,6 +248,62 @@ void tiles::newGen()
     FreeMemory();
 }
 
+bool tiles::indexValid(int x, int y)
+{
+    return (x >= 0) && (x < count) && (y >= 0) && (y < count);
+}
+
+/*tiles* tiles::operator=(tiles& n_tiles)
+{
+    for (int i = 0; i < count; ++i)
+    {
+        delete[] data1[i];
+        delete[] data2[i];
+    }
+    delete[] data1;
+    delete[] data2;
+
+    unsigned int min_count = 0;
+    count < n_tiles.count? count = n_tiles.count, min_count = count: count = count, min_count = n_tiles.count;
+
+    curIndex = n_tiles.curIndex;
+
+    data1 = new unsigned int* [count];
+    for (int i = 0; i < count; ++i)
+    {
+        data1[i] = new unsigned int[count] {0};
+        for (int j = 0; j < count; ++j)
+        {
+            data1[i][j] = n_tiles.data1[i][j];
+        }
+    }
+    for (int i = 0; i < min_count; ++i)
+    {
+        for (int j = 0; j < min_count; ++j)
+        {
+            data1[i][j] = n_tiles.data1[i][j];
+        }
+    }
+    data2 = new unsigned int* [count];
+    for (int i = 0; i < count; ++i)
+    {
+        data2[i] = new unsigned int[count] {0};
+        for (int j = 0; j < count; ++j)
+        {
+            data2[i][j] = n_tiles.data2[i][j];
+        }
+    }
+    for (int i = 0; i < min_count; ++i)
+    {
+        data2[i] = new unsigned int[count] {0};
+        for (int j = 0; j < min_count; ++j)
+        {
+            data2[i][j] = n_tiles.data2[i][j];
+        }
+    }
+    return this;
+}*/
+
 void tiles::FreeMemory()
 {
     for (int i = 0; i < count; ++i)
@@ -164,13 +314,12 @@ void tiles::FreeMemory()
     {
         bufferData()[i] = new unsigned int[count] {0};
     }
-    
 }
 
 int tiles::getLiveNeighborsCount(int x, int y)
 {
     int counter = 0;
-    if (x == 0)
+    /*if (x == 0)
     {
         if (y == 0)
         {
@@ -213,6 +362,18 @@ int tiles::getLiveNeighborsCount(int x, int y)
     else
     {
         counter = bufferData()[x + 1][y] + bufferData()[x - 1][y] + bufferData()[x][y - 1] + bufferData()[x - 1][y - 1] + bufferData()[x + 1][y - 1] + bufferData()[x][y + 1] + bufferData()[x + 1][y + 1] + bufferData()[x - 1][y + 1];
+    }*/
+
+    for (int i = -1; i <= 1; ++i)
+    {
+        for (int j = -1; j <= 1; ++j)
+        {
+            if (indexValid(x + i, y + j) && (i * i + j * j != 0))
+            {
+                counter += bufferData()[x + i][y + j];
+            }
+        }
     }
+
     return counter;
 }
