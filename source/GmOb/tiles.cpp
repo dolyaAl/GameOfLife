@@ -77,8 +77,11 @@ unsigned int** tiles::bufferData()
 
 void tiles::SetLive(unsigned int live, unsigned int x, unsigned int y)
 {
-    currentData()[x][y] = live;
-    live == 1 ? ++live_count : --live_count;
+    if (GetLive(x, y) != live && indexValid(x, y))
+    {
+        currentData()[x][y] = live;
+        live == 1 ? ++live_count : --live_count;
+    }
 }
 
 void tiles::resize(int gm_tiles_count)
@@ -163,7 +166,11 @@ void tiles::resize(int gm_tiles_count)
 
 int tiles::GetLive(unsigned int x, unsigned int y)
 {
-    return currentData()[x][y];
+    if (indexValid(x, y))
+    {
+        return currentData()[x][y];
+    }
+    return -1;
 }
 
 int tiles::GetLiveCount()

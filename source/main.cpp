@@ -14,8 +14,8 @@
 
 //global variables
 unsigned int gm_tiles_count = 50;
-const unsigned int scr_WIDTH = 800;
-const unsigned int scr_HEIGHT = 650;
+int scr_WIDTH = 800;
+int scr_HEIGHT = 650;
 float gm_tiles_step_x = static_cast<float>(scr_WIDTH)/ static_cast<float>(gm_tiles_count);
 float gm_tiles_step_y = static_cast<float>(scr_HEIGHT)/ static_cast<float>(gm_tiles_count);
 float gm_speed = 0.1f;
@@ -27,12 +27,18 @@ bool GameStarted = false;
 bool Menu = true;
 bool Options = false;
 bool start = false;
+int speed = 1;
 //
 tiles GameTiles(gm_tiles_count);
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
+    scr_HEIGHT = height;
+    scr_WIDTH = width;
+    gm_tiles_step_x = static_cast<float>(scr_WIDTH) / static_cast<float>(gm_tiles_count);
+    gm_tiles_step_y = static_cast<float>(scr_HEIGHT) / static_cast<float>(gm_tiles_count);
+
 }
 
 void DrawVertical(GLFWwindow* window, unsigned int VBO)
@@ -116,26 +122,36 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 void mousebutton_callback(GLFWwindow* window, int button, int action, int mods)
 {
-    if (action == GLFW_PRESS && Menu)
+    if (action == GLFW_PRESS)
     {
         if (button == GLFW_MOUSE_BUTTON_LEFT)
         {
             glfwGetCursorPos(window, &ms_xpos, &ms_ypos);
-            if (ms_xpos/scr_WIDTH > 0.275f && ms_xpos / scr_WIDTH < 0.725f && ms_ypos / scr_HEIGHT < 0.625f && ms_ypos / scr_HEIGHT > 0.475f && Options == false)
+            if (ms_xpos > 240 && ms_xpos < 560 && ms_ypos > 325 && ms_ypos < 400 && !Options)
             {
-                Menu = !Menu;
+                Menu = false;
             }
-            if (ms_xpos / scr_WIDTH > 0.325f && ms_xpos / scr_WIDTH < 0.675f && ms_ypos / scr_HEIGHT < 0.775f && ms_ypos / scr_HEIGHT > 0.675f && Menu == true)
+            else if (ms_xpos > 240 && ms_xpos < 560 && ms_ypos > 422.5 && ms_ypos < 497.5 && Menu)
             {
                 Options = !Options;
                 Menu = !Menu;
             }
-            if (ms_xpos / scr_WIDTH > 0.375f && ms_xpos / scr_WIDTH < 0.625f && ms_ypos / scr_HEIGHT < 0.875f && ms_ypos / scr_HEIGHT > 0.825f && Menu == true)
+            else if (ms_xpos > 240 && ms_xpos < 560 && ms_ypos > 520 && ms_ypos < 595 && Menu)
             {
                 glfwSetWindowShouldClose(window, true);
             }
+            else if (ms_xpos / scr_WIDTH > 0.275f && ms_xpos / scr_WIDTH < 0.725f && ms_ypos / scr_HEIGHT < 0.5f && ms_ypos / scr_HEIGHT > 0.375f && Options)
+            {
+                speed == 9 ? speed = 1 : speed++;
+            }
+            else if (ms_xpos > 220 && ms_xpos < 580 && ms_ypos > 438.75 && ms_ypos < 520 && Options)
+            {
+                Options = !Options;
+                Menu = !Menu;
+            }
         }
     }
+    
 }
 
 void processInput(GLFWwindow* window)
@@ -162,8 +178,8 @@ void processInput(GLFWwindow* window)
 
 void GameRenderer(GLFWwindow* window, unsigned int VBO, unsigned int EBO)
 {
-    DrawVertical(window, VBO);
-    DrawHorizontal(window, VBO);
+    //DrawVertical(window, VBO);
+    //DrawHorizontal(window, VBO);
 
     if (GameTiles.GetLiveCount() > 0)
     {
@@ -172,7 +188,7 @@ void GameRenderer(GLFWwindow* window, unsigned int VBO, unsigned int EBO)
 
     if (GameStarted)
     {
-        if (glfwGetTime() >= 0.1f)
+        if (glfwGetTime() >= (1.f - 0.1f * speed))
         {
             GameTiles.newGen();
             glfwSetTime(0);
@@ -180,7 +196,7 @@ void GameRenderer(GLFWwindow* window, unsigned int VBO, unsigned int EBO)
     }
 }
 
-unsigned int loadTextures(const char* exePath, const std::string texName)
+unsigned int loadTexture(const char* exePath, const std::string texName)
 {
     std::string executablePath = std::string(exePath);
     size_t found = executablePath.find_last_of("/\\");
@@ -216,6 +232,41 @@ unsigned int loadTextures(const char* exePath, const std::string texName)
     return texture;
 }
 
+void loadTextures(const char* exePath)
+{
+    textures[0] = loadTexture(exePath, "start.png");
+    textures[1] = loadTexture(exePath, "fon3.png");
+    textures[2] = loadTexture(exePath, "options.png");
+    textures[3] = loadTexture(exePath, "name4.png");
+    textures[4] = loadTexture(exePath, "quite.png");
+    textures[5] = loadTexture(exePath, "speed.png");
+    textures[6] = loadTexture(exePath, "buttonrules1.png");
+    textures[7] = loadTexture(exePath, "numbers.png");
+}
+
+void speedNumbersRender(GLFWwindow* window, unsigned int VBO, unsigned int EBO)
+{
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBindTexture(GL_TEXTURE_2D, textures[7]);
+
+    float vertices[] = //speed vertices
+    {
+         0.7375f,  0.231f,  0.0f,   1.0f, 0.0f, 0.0f,   0.f, 1.0f,    //Ô‚
+         0.7375f,  0.f,     0.0f,   0.0f, 1.0f, 0.0f,   0.f, 0.0f,    //ÔÌ
+         0.55f,    0.f,     0.0f,   0.0f, 0.0f, 1.0f,   0.f, 0.0f,    //ÎÌ
+         0.55f,    0.231f,  0.0f,   1.0f, 1.0f, 0.0f,   0.f, 1.0f     //Î‚
+    };
+   
+    vertices[22] = 0 + 0.1 * (speed - 1);
+    vertices[30] = 0 + 0.1 * (speed - 1);
+    vertices[6] = 0.1 * speed;
+    vertices[14] = 0.1 * speed;
+     
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+}
+
 void optionsRenderer(GLFWwindow* window, unsigned int VBO, unsigned int EBO)
 {
     unsigned int indices[] =
@@ -238,29 +289,22 @@ void optionsRenderer(GLFWwindow* window, unsigned int VBO, unsigned int EBO)
     };
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices0), vertices0, GL_STATIC_DRAW);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
     glBindTexture(GL_TEXTURE_2D, textures[5]);
 
     float vertices[] = //speed vertices
     {
-         0.45f,   0.25f,  0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,  //Ô‚
-         0.45f,   0.f,  0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, //ÔÌ
-        -0.45f,   0.f,  0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, //ÎÌ
-        -0.45f,   0.25f,  0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  //Î‚
+         0.45f,   0.231f,  0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,  //Ô‚
+         0.45f,   0.f,    0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, //ÔÌ
+        -0.45f,   0.f,    0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, //ÎÌ
+        -0.45f,   0.231f,  0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  //Î‚
     };
 
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    glBindTexture(GL_TEXTURE_2D, textures[6]);
 
-    float vertices1[] = //rules image vertices
-    {
-         0.45f,   -0.05f,  0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,  //Ô‚
-         0.45f,   -0.3f,  0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, //ÔÌ
-        -0.45f,   -0.3f,  0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, //ÎÌ
-        -0.45f,   -0.05f,  0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  //Î‚
-    };
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices1), vertices1, GL_STATIC_DRAW);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    speedNumbersRender(window, VBO, EBO);
+
     glBindTexture(GL_TEXTURE_2D, textures[4]);
 
     float vertices2[] = //go back image vertices
@@ -300,10 +344,10 @@ void MenuRenderer(GLFWwindow* window, unsigned int VBO, unsigned int EBO)
     glBindTexture(GL_TEXTURE_2D, textures[0]);
     float vertices[] = //start button image vertices
     {
-         0.45f,   0.05f,  0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,  //Ô‚
-         0.45f,  -0.25f,  0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, //ÔÌ
-        -0.45f,  -0.25f,  0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, //ÎÌ
-        -0.45f,   0.05f,  0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  //Î‚
+         0.4f,   0.f,  0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,  //Ô‚
+         0.4f,  -0.23f,  0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, //ÔÌ
+        -0.4f,  -0.23f,  0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, //ÎÌ
+        -0.4f,   0.f,  0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  //Î‚
     };
 
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -312,10 +356,10 @@ void MenuRenderer(GLFWwindow* window, unsigned int VBO, unsigned int EBO)
     glBindTexture(GL_TEXTURE_2D, textures[2]);
     float vertices1[] = //option button image vertices
     {
-         0.35f,  -0.35f,  0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,  //Ô‚
-         0.35f,  -0.55f,  0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, //ÔÌ
-        -0.35f,  -0.55f,  0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, //ÎÌ
-        -0.35f,  -0.35f,  0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  //Î‚
+         0.4f,   -0.3f,  0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,  //Ô‚
+         0.4f,  -0.53f,  0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, //Ô
+        -0.4f,  -0.53f,  0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, //ÎÌ
+        -0.4f,   -0.3f,  0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  //Î‚
     };
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices1), vertices1, GL_STATIC_DRAW);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -323,10 +367,10 @@ void MenuRenderer(GLFWwindow* window, unsigned int VBO, unsigned int EBO)
     glBindTexture(GL_TEXTURE_2D, textures[4]);
     float vertices2[] = //quite button image vertices
     {
-         0.25f,  -0.65f,  0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,  //Ô‚
-         0.25f,  -0.75f,  0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, //ÔÌ
-        -0.25f,  -0.75f,  0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, //ÎÌ
-        -0.25f,  -0.65f,  0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  //Î‚
+         0.4f,   -0.6f,  0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,  //Ô‚
+         0.4f,  -0.83f,  0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, //ÔÌ
+        -0.4f,  -0.83f,  0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, //ÎÌ
+        -0.4f,   -0.6f,  0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  //Î‚
     };
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices2), vertices2, GL_STATIC_DRAW);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -334,10 +378,10 @@ void MenuRenderer(GLFWwindow* window, unsigned int VBO, unsigned int EBO)
     glBindTexture(GL_TEXTURE_2D, textures[3]);
     float vertices3[] = //game name image vertices
     {
-         0.9f,   0.75f,  0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,  //Ô‚
-         0.9f,   0.2f,   0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, //ÔÌ
-        -0.9f,   0.2f,   0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, //ÎÌ
-        -0.9f,   0.75f,  0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  //Î‚
+         1.f,   1.f,  0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,  //Ô‚
+         1.f,   0.23f,   0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, //ÔÌ
+        -1.f,   0.23f,   0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, //ÎÌ
+        -1.f,   1.f,  0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  //Î‚
     };
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices3), vertices3, GL_STATIC_DRAW);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -354,6 +398,34 @@ bool glInit()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+}
+
+void glBind(unsigned int VAO, unsigned int VAO2, unsigned int VBO, unsigned int VBO2, unsigned int EBO)
+{
+    glBindVertexArray(VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    glBindVertexArray(VAO2);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO2);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 }
 
 int main(int argc, char* argv[])
@@ -397,34 +469,10 @@ int main(int argc, char* argv[])
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
-
     glGenVertexArrays(1, &VAO2);
     glGenBuffers(1, &VBO2);
 
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-
-    glBindVertexArray(VAO2);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO2);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
+    glBind(VAO, VAO2, VBO, VBO2, EBO);
     
     stbi_set_flip_vertically_on_load(true);
 
@@ -434,13 +482,7 @@ int main(int argc, char* argv[])
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    textures[0] = loadTextures(argv[0], "buttonstart1.png");
-    textures[1] = loadTextures(argv[0], "fon.png");
-    textures[2] = loadTextures(argv[0], "buttonopt1.png");
-    textures[3] = loadTextures(argv[0], "name2.png");
-    textures[4] = loadTextures(argv[0], "buttonquite1.png");
-    textures[5] = loadTextures(argv[0], "buttonspeed1.png");
-    textures[6] = loadTextures(argv[0], "buttonrules1.png");
+    loadTextures(argv[0]);
 
     while (!glfwWindowShouldClose(window))
     {
