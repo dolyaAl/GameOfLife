@@ -127,24 +127,24 @@ void mousebutton_callback(GLFWwindow* window, int button, int action, int mods)
         if (button == GLFW_MOUSE_BUTTON_LEFT)
         {
             glfwGetCursorPos(window, &ms_xpos, &ms_ypos);
-            if (ms_xpos > 240 && ms_xpos < 560 && ms_ypos > 325 && ms_ypos < 400 && !Options)
+            if (ms_xpos * 2 / scr_WIDTH > 0.6f && ms_xpos * 2 / scr_WIDTH < 1.4f && ms_ypos * 2 / scr_HEIGHT > 1.f && ms_ypos * 2 / scr_HEIGHT < 1.23f && !Options)
             {
                 Menu = false;
             }
-            else if (ms_xpos > 240 && ms_xpos < 560 && ms_ypos > 422.5 && ms_ypos < 497.5 && Menu)
+            else if (ms_xpos * 2 / scr_WIDTH > 0.6f && ms_xpos * 2 / scr_WIDTH < 1.4f && ms_ypos * 2 / scr_HEIGHT > 1.3f && ms_ypos * 2 / scr_HEIGHT < 1.53f && Menu)
             {
                 Options = !Options;
                 Menu = !Menu;
             }
-            else if (ms_xpos > 240 && ms_xpos < 560 && ms_ypos > 520 && ms_ypos < 595 && Menu)
+            else if (ms_xpos * 2 / scr_WIDTH > 0.6f && ms_xpos * 2 / scr_WIDTH < 1.4f && ms_ypos * 2 / scr_HEIGHT > 1.6f && ms_ypos * 2 / scr_HEIGHT < 1.83f && Menu)
             {
                 glfwSetWindowShouldClose(window, true);
             }
-            else if (ms_xpos / scr_WIDTH > 0.275f && ms_xpos / scr_WIDTH < 0.725f && ms_ypos / scr_HEIGHT < 0.5f && ms_ypos / scr_HEIGHT > 0.375f && Options)
+            else if (ms_xpos * 2 / scr_WIDTH > 0.55f && ms_xpos * 2 / scr_WIDTH < 1.45f && ms_ypos * 2 / scr_HEIGHT < 1.f && ms_ypos * 2 / scr_HEIGHT > 0.75f && Options)
             {
                 speed == 9 ? speed = 1 : speed++;
             }
-            else if (ms_xpos > 220 && ms_xpos < 580 && ms_ypos > 438.75 && ms_ypos < 520 && Options)
+            else if (ms_xpos * 2 / scr_WIDTH > 0.55f && ms_xpos * 2 / scr_WIDTH < 1.45f && ms_ypos * 2 / scr_HEIGHT > 1.35f && ms_ypos * 2 / scr_HEIGHT < 1.6f && Options)
             {
                 Options = !Options;
                 Menu = !Menu;
